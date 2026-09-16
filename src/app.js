@@ -1,11 +1,11 @@
 import express from "express";
-import connectToDatabase from "./config/dbConnect.js";
-import livros from "./models/Livro.js";
+import conectaNaDatabase from "./config/dbConnect.js";
+import routes from "./routes/index.js";
 
-const conexao = await connectToDatabase();
+const conexao = await conectaNaDatabase();
 
 conexao.on("error", (erro) => {
-  console.log("Erro na conexão", erro);
+  console.error("Erro na conexão", erro);
 });
 
 conexao.once("open", () => {
@@ -13,37 +13,6 @@ conexao.once("open", () => {
 });
 
 const app = express();
-app.use(express.json());
-
-app.get("/", (req, res) => {
-  res.status(200).send("Curso de Node.js");
-});
-
-app.get("/livros", async (req, res) => {
-  const listaLivros = await livros.find({});
-  res.status(200).json(listaLivros);
-});
-
-app.get("/livros/:id", (req, res) => {
-  const index = buscarLivro(req.params.id);
-  res.status(200).json(livros[index]);
-});
-
-app.post("/livros", (req, res) => {
-  livros.push(req.body);
-  res.status(201).send("livro cadastrado com sucesso");
-});
-
-app.put("/livros/:id", (req, res) => {
-  const index = buscarLivro(req.params.id);
-  livros[index].titulo = req.body.titulo;
-  res.status(200).json(livros);
-});
-
-app.delete("/livros/:id", (req, res) => {
-  const index = buscarLivro(req.params.id);
-  livros.splice(index, 1);
-  res.status(200).send("livro removido com sucesso");
-});
+routes(app);
 
 export default app;
